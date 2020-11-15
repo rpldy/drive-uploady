@@ -1,0 +1,9 @@
+node_modules/
+*.story.js
+*.stories.js
+*.mock.js
+packages/**/lib/**/*.js
+packages/**/umd/**/*.js
+story-helpers/
+scripts/
+cypress/
