@@ -2,84 +2,97 @@ import { getXhrSend } from "@rpldy/sender";
 import { DRIVE_SENDER_TYPE, DRIVE_UPLOAD_URL_MULTI } from "./consts";
 
 const validateItems = (items) => {
-    if (items.length > 1) {
-        throw new Error("Uploady Drive Sender - only 1 file can be uploaded per request (use concurrent = 1)");
-    }
+  if (items.length > 1) {
+    throw new Error("Uploady Drive Sender - only 1 file can be uploaded per request (use concurrent = 1)");
+  }
 
-    if (!items[0].file) {
-        throw new Error("Uploady Drive Sender - uploaded item must be file");
-    }
+  if (!items[0].file) {
+    throw new Error("Uploady Drive Sender - uploaded item must be file");
+  }
 };
 
-const getDriveSender = (authPromise, { gapi }) => {
-    const signInToDrive = () => {
-        gapi = gapi || window.gapi;
+const getUploadUrl = (queryParams) => {
+  const paramsString = queryParams &&
+    Object.entries(queryParams)
+      .map(([key, val]) => `${key}=${val}`)
+      .join("&");
 
-        const isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
+  return `${DRIVE_UPLOAD_URL_MULTI}${paramsString ? "&" + paramsString : ""}`;
+};
 
-        return isSignedIn ?
-            Promise.resolve(true) :
-            new Promise((resolve) => {
-                gapi.auth2.getAuthInstance().isSignedIn
-                    .listen(resolve);
+const getDriveSender = (authPromise, { gapi: extGapi, queryParams }) => {
+  const getGapi = () => extGapi || self.gapi;
 
-                gapi.auth2.getAuthInstance().signIn();
-            });
-    };
+  const signInToDrive = () => {
+    const gapi = getGapi();
 
-    const xhrSend = getXhrSend({
-        getRequestData: () => null,
-        preRequestHandler: (issueRequest, items) => authPromise
-            .then((isInit) => {
-                if (!isInit) {
-                    throw new Error("Uploady Drive Sender - failed to initialize gapi");
-                }
+    const isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
 
-                return signInToDrive();
-            })
-            .then((isSignedIn) => {
-                let result;
+    return isSignedIn ?
+      Promise.resolve(true) :
+      new Promise((resolve) => {
+        gapi.auth2.getAuthInstance().isSignedIn
+          .listen(resolve);
 
-                if (isSignedIn) {
-                    const token = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+        gapi.auth2.getAuthInstance().signIn();
+      });
+  };
 
-                    const metadata = JSON.stringify({
-                        name: items[0].file.name,
-                        mimeType: items[0].file.type,
-                        originalFilename: items[0].file.name,
-                    });
+  const xhrSend = getXhrSend({
+    getRequestData: () => null,
+    preRequestHandler: (issueRequest, items, url, options) => authPromise
+      .then((isInit) => {
+        if (!isInit) {
+          throw new Error("Uploady Drive Sender - failed to initialize gapi");
+        }
 
-                    const requestData = new FormData();
-                    requestData.append("metadata", new Blob([metadata], { type: "application/json" }));
-                    requestData.append("file", items[0].file);
+        return signInToDrive();
+      })
+      .then((isSignedIn) => {
+        let result;
 
-                    //return result of issueRequest to ensure sender gets the upload XHR
-                    result = issueRequest(DRIVE_UPLOAD_URL_MULTI, requestData, {
-                        headers: {
-                            "Authorization": `Bearer ${token}`,
-                        }
-                    });
-                } else {
-                    throw new Error("Uploady Drive Sender - not authenticated failure");
-                }
+        const gapi = getGapi();
 
-                return result;
-            }),
-    });
+        if (isSignedIn) {
+          const token = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
 
-    const send = (items, url, sendOptions, onProgress) => {
-        validateItems(items);
+          const metadata = JSON.stringify({
+            name: items[0].file.name,
+            mimeType: items[0].file.type,
+            ...options.params,
+          });
 
-        const sendResult = xhrSend(items, "dummy", sendOptions, onProgress);
+          const requestData = new FormData();
+          requestData.append("metadata", new Blob([metadata], { type: "application/json" }));
+          requestData.append("file", items[0].file);
 
-        sendResult.senderType = DRIVE_SENDER_TYPE;
+          //return result of issueRequest to ensure sender has the upload XHR
+          result = issueRequest(getUploadUrl(queryParams), requestData, {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          });
+        } else {
+          throw new Error("Uploady Drive Sender - not authenticated failure");
+        }
 
-        return sendResult;
-    };
+        return result;
+      }),
+  });
 
-    return {
-        send,
-    };
+  const send = (items, url, sendOptions, onProgress) => {
+    validateItems(items);
+
+    const sendResult = xhrSend(items, "dummy", sendOptions, onProgress);
+
+    sendResult.senderType = DRIVE_SENDER_TYPE;
+
+    return sendResult;
+  };
+
+  return {
+    send,
+  };
 };
 
 export default getDriveSender;

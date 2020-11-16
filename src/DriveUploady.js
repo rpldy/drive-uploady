@@ -3,25 +3,25 @@ import Uploady, { composeEnhancers } from "@rpldy/uploady";
 import getDriveEnhancer from "./getDriveEnhancer";
 
 const DriveUploady = (props) => {
-    const {
-        enhancer: extEnhancer,
-        gapi,
-        dontLoadGapi,
-        gApiScriptId,
-        clientId,
-        scopes,
-        ...uploadyProps
-    } = props;
+  const {
+    enhancer: extEnhancer,
+    gapi,
+    gApiScriptId,
+    clientId,
+    scope,
+    queryParams,
+    ...uploadyProps
+  } = props;
 
-    const enhancer = useMemo(() => {
-        const driveEnhancer = getDriveEnhancer({
-            gapi, dontLoadGapi, gApiScriptId, clientId, scopes
-        });
+  const enhancer = useMemo(() => {
+    const driveEnhancer = getDriveEnhancer({
+      gapi, gApiScriptId, clientId, scope, queryParams,
+    });
 
-        return extEnhancer ? composeEnhancers(driveEnhancer, extEnhancer) : driveEnhancer;
-    }, [extEnhancer, gapi, dontLoadGapi, gApiScriptId, clientId, scopes]);
+    return extEnhancer ? composeEnhancers(driveEnhancer, extEnhancer) : driveEnhancer;
+  }, [extEnhancer, gapi, gApiScriptId, clientId, scope, queryParams]);
 
-    return <Uploady {...uploadyProps} enhancer={enhancer}/>;
+  return <Uploady {...uploadyProps} enhancer={enhancer}/>;
 };
 
 export default DriveUploady;

@@ -16,18 +16,7 @@ module.exports = {
 		"@babel/plugin-proposal-function-bind",
 		"@babel/plugin-proposal-class-properties",
 		"@babel/plugin-proposal-optional-chaining",
-        "@babel/plugin-proposal-export-default-from",
-        "minify-dead-code-elimination",
-        // "@babel/plugin-transform-runtime",
-        // ["@babel/plugin-transform-runtime", {
-        //     corejs: 3,
-        //     "version": "^7.10.2"
-        // }],
-		"lodash",
-		["module-resolver", {
-			"root": ["./"],
-			// "alias": {}
-		}]
+    "@babel/plugin-proposal-export-default-from",
 	],
 	env: {
 		test: {
