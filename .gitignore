@@ -13,8 +13,7 @@ stats.json
 dist
 output
 build
-bundle/
-packages/**/umd
+lib/
 .history
 storybook-static
 npm-debug.log
@@ -25,10 +24,6 @@ jsexample.js
 jsexample2.js
 test.js
 todo.md
-
-packages/**/lib
-packages/**/.flowconfig
-packages/**/LICENSE.md
 
 /test.js
 /experiment.js
