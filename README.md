@@ -27,7 +27,6 @@ Uploads are sent to the multipart endpoint: [Google Drive docs](https://develope
 | --------------                            | ------------- | ------------- | -------------
 | clientId* (unless gapi instance provided) | string        |               | The API client Id. Obtained from the [Google dev console](https://console.developers.google.com/)              
 | scopes* (unless gapi instance provided)   | string        |               | The scopes your app requires ([Drive docs](https://developers.google.com/drive/api/v2/about-auth))
-| folder                                    | string        |               | The parent folder to upload the file to
 | gApiScriptId                              | string        | "uploady-drive-api" | The id of the script tag (loading google api) that will be added to the page 
 | gapi                                      |               |               | provide the Google API instance directly to be used
 | queryParams                              | Object        |               | [Optional query parameters](https://developers.google.com/drive/api/v3/reference/files/create#parameters)

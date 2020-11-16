@@ -18,14 +18,11 @@
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "strictFunctionTypes": true,
-        "baseUrl": ".",
-        "paths": {
-            "~/*": ["packages/*"]
-        }
+        "baseUrl": "."
     },
     "include": [
-        "packages/**/types/*.ts",
-        "packages/**/types/*.tsx"
+        "types/*.ts",
+        "types/*.tsx"
     ],
     "exclude": [
     ]
