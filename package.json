@@ -5,13 +5,6 @@
   "author": "yoav niran (https://github.com/yoavniran)",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
-  "main:dev": "src/index.js",
-  "exports": {
-    ".": "lib/esm/index.js",
-    "require": "lib/cjs/index.js",
-    "import": "lib/esm/index.js",
-    "default": "lib/esm/index.js"
-  },
   "types": "types/index.d.ts",
   "license": "MIT",
   "repository": {
@@ -45,7 +38,6 @@
   },
   "peerDependencies": {
     "@rpldy/sender": ">=0.7.3",
-    "@rpldy/uploady": ">=0.7.3",
     "react": ">=16.8.x",
     "react-dom": ">=16.8.x"
   },
@@ -59,9 +51,9 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.12.5",
     "@babel/runtime-corejs3": "^7.12.5",
-    "@rpldy/sender": "^0.7.3",
-    "@rpldy/upload-button": "^0.7.3",
-    "@rpldy/uploady": "^0.7.3",
+    "@rpldy/sender": "^0.7.4",
+    "@rpldy/upload-button": "^0.7.4",
+    "@rpldy/uploady": "^0.7.4",
     "@storybook/addon-actions": "^6.0.28",
     "@storybook/addon-essentials": "^6.0.28",
     "@storybook/addon-links": "^6.0.28",
