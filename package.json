@@ -30,9 +30,9 @@
     "jest": "NODE_ENV=test jest",
     "jest:cov": "yarn jest --coverage",
     "test": "yarn lint && yarn jest && yarn types",
-    "build": "node scripts/build.js",
-    "release": "yarn clean; yarn build;",
-    "publish": "np --no-cleanup --test-script release",
+    "build": "yarn clean; node scripts/build.js",
+    "release:prep": "yarn test; yarn build",
+    "release": "np --no-cleanup --test-script release:prep",
     "storybook": "start-storybook -p 6006 --no-dll",
     "build-storybook": "build-storybook --no-dll",
     "start": "yarn storybook"
@@ -86,5 +86,7 @@
     "shelljs": "^0.8.4",
     "typescript": "^4.0.5"
   },
-  "dependencies": {}
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
 }
