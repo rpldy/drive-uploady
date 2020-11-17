@@ -5,10 +5,8 @@ stories/
 *.test.js
 tests/
 mocks/
-lerna.json
 *.log
 jest*
-.flowconfig
 .editorconfig
 .eslintignore
 .eslintrc.js
@@ -17,5 +15,7 @@ jest*
 .env
 .jest-cache/
 .jest-coverage/
-
-
+scripts/
+.storybook/
+tsconfig.json
+.eslintcache

@@ -1,3 +1,16 @@
+
+<p align="center">
+    <a href="https://badge.fury.io/js/drive-uploady">
+        <img src="https://badge.fury.io/js/drive-uploady.svg" alt="npm version" height="20"></a>
+    <a href="LICENSE.md">
+       <img src="https://img.shields.io/github/license/rpldy/drive-uploady?color=blue&style=plastic" alt="MIT License"/>
+    </a>
+    <a href="CODE_OF_CONDUCT.md">
+       <img src="https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg"/> 
+    </a>    
+</p>
+
+
 <p align="center">
     <img src="https://res.cloudinary.com/yoavniran/image/upload/v1605473499/drive-uploady-logo_ymcfcm.png" width="300" alt='react-uploady Logo' aria-label='react-uploady' />   
 </p>
