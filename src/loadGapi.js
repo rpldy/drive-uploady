@@ -1,13 +1,20 @@
 import { GOOGLE_API, DRIVE_DOC } from "./consts";
 
+export const GLOBAL_LOAD_METHOD = "_uploadyOnGapiLoaded";
+
 const loadGapi = ({ gApiScriptId = "uploady-drive-api", apiUrl = GOOGLE_API, clientId, scope }) => {
 
   const loadScript = () => new Promise((resolve) => {
     if (!document.getElementById(gApiScriptId)) {
+      window[GLOBAL_LOAD_METHOD] = () => {
+        //clean up
+        window[GLOBAL_LOAD_METHOD] = undefined;
+        resolve();
+      };
+
       const script = document.createElement("script");
       script.id = gApiScriptId;
-      script.src = apiUrl;
-      script.addEventListener("load", resolve);
+      script.src = apiUrl + `?onload=${GLOBAL_LOAD_METHOD}`;
       document.head.appendChild(script);
     } else {
       resolve();
@@ -20,9 +27,7 @@ const loadGapi = ({ gApiScriptId = "uploady-drive-api", apiUrl = GOOGLE_API, cli
       scope: scope,
       discoveryDocs: [DRIVE_DOC],
     })
-      .then(() => {
-        return true;
-      })
+      .then(() => true)
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
