@@ -31,8 +31,8 @@
     "jest:cov": "yarn jest --coverage",
     "test": "yarn lint && yarn jest && yarn types",
     "build": "node scripts/build.js",
-    "publish": "np --yolo",
-    "release": "yarn clean; yarn test; yarn build; yarn publish;",
+    "release": "yarn clean; yarn build;",
+    "publish": "np --no-cleanup --test-script release",
     "storybook": "start-storybook -p 6006 --no-dll",
     "build-storybook": "build-storybook --no-dll",
     "start": "yarn storybook"
