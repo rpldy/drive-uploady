@@ -24,6 +24,7 @@ const loadGapi = ({ gApiScriptId = "uploady-drive-api", apiUrl = GOOGLE_API, cli
         return true;
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.log(err);
         return false;
       });

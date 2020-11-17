@@ -21,7 +21,7 @@ const getUploadUrl = (queryParams) => {
 };
 
 const getDriveSender = (authPromise, { gapi: extGapi, queryParams }) => {
-  const getGapi = () => extGapi || self.gapi;
+  const getGapi = () => extGapi || self.gapi; // eslint-disable-line no-restricted-globals
 
   const signInToDrive = () => {
     const gapi = getGapi();
