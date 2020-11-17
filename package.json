@@ -32,7 +32,7 @@
     "test": "yarn lint && yarn jest && yarn types",
     "build": "yarn clean; node scripts/build.js",
     "release:prep": "yarn test; yarn build",
-    "release": "np --no-cleanup --test-script release:prep",
+    "release": "np --no-cleanup --test-script=\"release:prep\"",
     "storybook": "start-storybook -p 6006 --no-dll",
     "build-storybook": "build-storybook --no-dll",
     "start": "yarn storybook"
