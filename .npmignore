@@ -1,6 +1,7 @@
 src/
 *.story.js
 *.stories.js
+stories/
 *.test.js
 tests/
 mocks/
