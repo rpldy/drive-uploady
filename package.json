@@ -1,5 +1,5 @@
 {
-  "version": "0.2.4",
+  "version": "0.2.5",
   "name": "drive-uploady",
   "description": "wrapper for react-uploady to upload to google-drive",
   "author": "yoav niran (https://github.com/yoavniran)",
