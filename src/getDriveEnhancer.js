@@ -1,10 +1,12 @@
 import loadGapi from "./loadGapi";
 import getDriveSender from "./getDriveSender";
 
+let gApiClientPromise;
+
 const getDriveEnhancer = ({ gapi, gApiScriptId, clientId, scope, queryParams } = {}) => {
   gapi = gapi || window.gapi;
 
-  const gApiClientPromise = new Promise((resolve) => {
+  gApiClientPromise = gApiClientPromise || new Promise((resolve) => {
     if (gapi) {
       resolve(true);
     } else {

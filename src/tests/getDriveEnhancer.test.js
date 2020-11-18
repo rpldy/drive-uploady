@@ -1,13 +1,15 @@
-import loadGapi from "../loadGapi";
-import getDriveSender from "../getDriveSender";
-import getDriveEnhancer from "../getDriveEnhancer";
-
-jest.mock("../loadGapi", () => jest.fn());
-jest.mock("../getDriveSender", () => jest.fn());
-
 describe("getDriveEnhancer tests", () => {
+  let loadGapi, getDriveSender, getDriveEnhancer;
 
   beforeEach(() => {
+    jest.resetModules();
+    jest.doMock("../loadGapi", () => jest.fn());
+    jest.doMock("../getDriveSender", () => jest.fn());
+
+    loadGapi = require("../loadGapi");
+    getDriveSender = require("../getDriveSender");
+    getDriveEnhancer = require("../getDriveEnhancer").default;
+
     clearJestMocks(
       loadGapi,
       getDriveSender,

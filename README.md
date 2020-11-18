@@ -101,6 +101,8 @@ If not, it will create a new one (by adding a script tag).
 In case you already have a GAPI client running in your page/app that's not available on the window, 
 you can pass it as a prop:
 
+> It is assumed that if gapi is already available on the page then `gapi.load("client:auth2", ...)` was already called.
+
 ```javascript
 import React from "react";
 import DriveUploady from "drive-uploady";
