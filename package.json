@@ -38,7 +38,7 @@
     "start": "yarn storybook"
   },
   "peerDependencies": {
-    "@rpldy/sender": ">=0.7.3",
+    "@rpldy/sender": ">=0.9.0",
     "react": ">=16.8.x",
     "react-dom": ">=16.8.x"
   },
@@ -52,9 +52,9 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.12.5",
     "@babel/runtime-corejs3": "^7.12.5",
-    "@rpldy/sender": "^0.7.4",
-    "@rpldy/upload-button": "^0.7.4",
-    "@rpldy/uploady": "^0.7.4",
+    "@rpldy/sender": "^0.9.0",
+    "@rpldy/upload-button": "^0.9.0",
+    "@rpldy/uploady": "^0.9.0",
     "@storybook/addon-actions": "^6.0.28",
     "@storybook/addon-essentials": "^6.0.28",
     "@storybook/addon-links": "^6.0.28",
