@@ -20,64 +20,64 @@ const getUploadUrl = (queryParams) => {
   return `${DRIVE_UPLOAD_URL_MULTI}${paramsString ? "&" + paramsString : ""}`;
 };
 
-const getDriveSender = (authPromise, { gapi: extGapi, queryParams }) => {
-  const getGapi = () => extGapi || window.gapi;
+const getDriveSender = (authPromise, { queryParams }) => {
+  const signInToDrive = (tokenClient) =>
+    new Promise((resolve) => {
+      tokenClient.requestToken((response) => {
+        if (response.access_token && response.expires_in) {
+          resolve(response);
+        } else {
+          // eslint-disable-next-line
+          console.error("Encountered Auth Error ", {
+            code: response.error,
+            description: response.error_description,
+            uri: response.error_uri,
+          });
 
-  const signInToDrive = () => {
-    const gapi = getGapi();
-
-    const isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
-
-    return isSignedIn ?
-      Promise.resolve(true) :
-      new Promise((resolve) => {
-        gapi.auth2.getAuthInstance().isSignedIn
-          .listen(resolve);
-
-        gapi.auth2.getAuthInstance().signIn();
+          resolve();
+        }
       });
-  };
+    });
 
   const xhrSend = getXhrSend({
     getRequestData: () => null,
-    preRequestHandler: (issueRequest, items, url, options) => authPromise
-      .then((isInit) => {
-        if (!isInit) {
-          throw new Error("Uploady Drive Sender - failed to initialize gapi");
-        }
+    preRequestHandler: (issueRequest, items, url, options) =>
+      authPromise
+        .then((tokenClient) => {
+          if (!tokenClient) {
+            throw new Error("Uploady Drive Sender - failed to initialize gapi");
+          }
 
-        return signInToDrive();
-      })
-      .then((isSignedIn) => {
-        let result;
+          return signInToDrive(tokenClient);
+        })
+        .then((authResponse) => {
+          let result;
 
-        const gapi = getGapi();
+          if (authResponse) {
+            const token = authResponse.access_token;
 
-        if (isSignedIn) {
-          const token = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+            const metadata = JSON.stringify({
+              name: items[0].file.name,
+              mimeType: items[0].file.type,
+              ...options.params,
+            });
 
-          const metadata = JSON.stringify({
-            name: items[0].file.name,
-            mimeType: items[0].file.type,
-            ...options.params,
-          });
+            const requestData = new FormData();
+            requestData.append("metadata", new Blob([metadata], { type: "application/json" }));
+            requestData.append("file", items[0].file);
 
-          const requestData = new FormData();
-          requestData.append("metadata", new Blob([metadata], { type: "application/json" }));
-          requestData.append("file", items[0].file);
+            //return result of issueRequest to ensure sender has the upload XHR
+            result = issueRequest(getUploadUrl(queryParams), requestData, {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+              },
+            });
+          } else {
+            throw new Error("Uploady Drive Sender - authentication failure");
+          }
 
-          //return result of issueRequest to ensure sender has the upload XHR
-          result = issueRequest(getUploadUrl(queryParams), requestData, {
-            headers: {
-              "Authorization": `Bearer ${token}`,
-            },
-          });
-        } else {
-          throw new Error("Uploady Drive Sender - not authenticated failure");
-        }
-
-        return result;
-      }),
+          return result;
+        }),
   });
 
   const send = (items, url, sendOptions, onProgress) => {

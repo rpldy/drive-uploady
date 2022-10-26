@@ -17,8 +17,8 @@
 
 # Drive Uploady
 
-Provides a custom [React Uploady](https://github.com/rpldy/react-uploady) for uploading to Google Drive.
-All Uploady functionality such as [hooks](https://github.com/rpldy/react-uploady/tree/master/packages/ui/uploady#hooks) and components (ex: [Upload-Preview](https://github.com/rpldy/react-uploady/blob/master/packages/ui/upload-preview)) can be used with this package.
+Provides a custom [React Uploady](https://react-uploady.org) provider for uploading to Google Drive.
+All Uploady functionality such as [hooks](https://react-uploady.org/docs/category/hooks/) and components (ex: [Upload-Preview](https://react-uploady.org/docs/api/components/uploadPreview/)) can be used with this package.
 
 Uploads are sent to the multipart endpoint: [Google Drive docs](https://developers.google.com/drive/api/v3/manage-uploads#multipart). 
 
@@ -27,27 +27,26 @@ Uploads are sent to the multipart endpoint: [Google Drive docs](https://develope
 ## Installation
 
 ```shell
-#Yarn: 
-   $ yarn add drive-uploady
+#Yarn:  
+   $ yarn add drive-uploady @rpldy/uploady
 
 #NPM:
-   $ npm i drive-uploady
+   $ npm i drive-uploady @rpldy/uploady
 ``` 
 
 ## Props
 
-| Name (* = mandatory)                      | Type          | Default       | Description  
-| --------------                            | ------------- | ------------- | -------------
-| clientId* (unless gapi instance provided) | string        |               | The API client Id. Obtained from the [Google dev console](https://console.developers.google.com/)              
-| scopes* (unless gapi instance provided)   | string        |               | The scopes your app requires ([Drive docs](https://developers.google.com/drive/api/v2/about-auth))
-| gApiScriptId                              | string        | "uploady-drive-api" | The id of the script tag (loading google api) that will be added to the page 
-| gapi                                      |               |               | provide the Google API instance directly to be used
-| queryParams                              | Object        |               | [Optional query parameters](https://developers.google.com/drive/api/v3/reference/files/create#parameters)
+| Name (* = mandatory)                    | Type                              | Default            | Description                                                                                               |
+|-----------------------------------------|-----------------------------------|--------------------|-----------------------------------------------------------------------------------------------------------|
+| clientId* (unless getToken is provided) | string                            |                    | The API client Id. Obtained from the [Google dev console](https://console.developers.google.com/)         |              
+| scopes* (unless getToken is provided)   | string                            |                    | The scopes your app requires ([Drive docs](https://developers.google.com/drive/api/v2/about-auth))        |
+| gApiScriptIdPrefix                      | string                            | "uploady-drive-"   | The id of the script tag (loading google api) that will be added to the page                              |
+| getToken                                | [GetTokenMethod](#gettokenmethod) |                    | provide a function that will provide the (access) token                                                   |
+| queryParams                             | Object                            |                    | [Optional query parameters](https://developers.google.com/drive/api/v3/reference/files/create#parameters) |
 
-All other Uploady props can be passed as well. See docs [here](https://github.com/rpldy/react-uploady/tree/master/packages/ui/uploady#props).
+All other Uploady props can be passed as well. See docs [here](https://react-uploady.org/docs/api/#props).
 
 > Note: no support for concurrent > 1
-
 
 ## Example
 
@@ -57,17 +56,17 @@ import DriveUploady from "drive-uploady";
 import UploadButton from "@rpldy/upload-button";
 
 export const App = () => {
+  return (
+    <DriveUploady
+      clientId="<my-client-id>"
+      scope="https://www.googleapis.com/auth/drive.file"
+    >
+      <h2>Drive Uploady</h2>
 
-    return <DriveUploady        
-            clientId="<my-client-id>"
-            scope="https://www.googleapis.com/auth/drive.file"
-           >
-              <h2>Drive Uploady</h2>
-
-            <UploadButton>Upload to Drive</UploadButton>
-        </DriveUploady>;
+      <UploadButton>Upload to Drive</UploadButton>
+    </DriveUploady>
+  );
 };
-
 ```
 
 ### Upload to folder
@@ -78,48 +77,101 @@ import DriveUploady from "drive-uploady";
 import UploadButton from "@rpldy/upload-button";
 
 export const App = () => {
+  return (
+    <DriveUploady
+      clientId="<my-client-id>"
+      scope="https://www.googleapis.com/auth/drive.file"
+      params={{ parents: ["folder-id"] }}
+    >
+      <h2>Drive Uploady</h2>
 
-    return <DriveUploady        
-          clientId="<my-client-id>"
-          scope="https://www.googleapis.com/auth/drive.file"
-          params={{ parents: ["folder-id"] }}
-        >
-          <h2>Drive Uploady</h2>
-
-          <UploadButton>Upload to Drive</UploadButton>
-      </DriveUploady>;
+      <UploadButton>Upload to Drive</UploadButton>
+    </DriveUploady>
+  );
 };
 
 ```
 
+## Authentication
 
-### Use own GAPI instance
+By default, Drive-Uploady will load and use its own Google Authentication Provider. 
+The process involves loading the scripts from Google:
 
-Drive-Uploady will try and use an existing `window.gapi` instance if its available.
-If not, it will create a new one (by adding a script tag).
+1. https://apis.google.com/js/api.js
+2. https://accounts.google.com/gsi/client
 
-In case you already have a GAPI client running in your page/app that's not available on the window, 
-you can pass it as a prop:
+> Note: Using two scripts is due to Google's [deprecation decision](https://developers.googleblog.com/2022/03/gis-jsweb-authz-migration.html).
 
-> It is assumed that if gapi is already available on the page then `gapi.load("client:auth2", ...)` was already called.
+Once the scripts are loaded. Internally, a [TokenClient](https://developers.google.com/identity/oauth2/web/reference/js-reference#TokenClient) will be created (_google.accounts.oauth2.initTokenClient_) and will be used in order
+to retrieve an access token for the user. 
+
+The user will be shown a pop-up through which they can sign-in (if not already) and approve the application to access their Drive. 
+
+> The application (created in the [API Console](https://console.cloud.google.com/)) must have the right scope (ex: https://www.googleapis.com/auth/drive.file).
+
+As long as the page isn't refreshed and the token is still valid, the user will not be prompted to approve again when uploading additional files.
+In case the token is expired, the user will be prompted again.
+
+## Own Authentication
+
+In case you are already implementing your own use of the oauth flow with Google. 
+Drive-Uploady let's you pass in a _getToken_ method as a prop that will be used to retrieve the access token when needed.
+
+All scripts and authentication will be assumed to have been loaded and set up separately from Drive-Uploady.
+
+### GetTokenMethod
+
+```typescript
+export type AuthToken = {
+  access_token: string;
+  expires_in: number;
+};
+
+export type GetTokenMethod = (cb: (token: AuthToken) => void) => void;
+```
+
+Example use of getToken() implementation:  
 
 ```javascript
 import React from "react";
 import DriveUploady from "drive-uploady";
 import UploadButton from "@rpldy/upload-button";
 
-export const App = () => {
+const getToken = (cb) => {
+  const tokenClient = window.google.accounts.oauth2.initTokenClient({
+    client_id: "MY-CLIENT_ID",
+    scope: "MY-SCOPE",
+    callback: (response) => {
+      cb(response);
+    },
+  });
 
-    return <DriveUploady        
-          clientId="<my-client-id>"
-          scope="https://www.googleapis.com/auth/drive.file"
-          gapi={window.parent.gapi}
-        >
-          <h2>Drive Uploady</h2>
-
-          <UploadButton>Upload to Drive</UploadButton>
-      </DriveUploady>;
+  tokenClient.requestAccessToken({ prompt: "consent" });
 };
 
+export const App = () => {
+  return (
+    <DriveUploady
+      getToken={getToken}
+    >
+      <h2>Drive Uploady</h2>
+
+      <UploadButton>Upload to Drive</UploadButton>
+    </DriveUploady>
+  );
+};
 ```
 
+## Revoke Token
+
+The library provides a utility function to revoke the token previously retrieved on the page:
+
+```javascript
+import { revokeToken } from "drive-uploady";
+
+const RevokeButton = () => {
+	return (
+    <button onClick={revokeToken}>Revoke Token</button>
+  );
+};
+```

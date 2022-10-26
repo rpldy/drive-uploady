@@ -1,57 +1,110 @@
-import loadGapi, { GLOBAL_LOAD_METHOD } from "../loadGapi";
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "asyncCheckToken"] }] */
+import loadGapi from "../loadGapi";
+import loadScript from "../loadScript";
+
+jest.mock("../loadScript");
 
 describe("loadGapi tests", () => {
   const clientId = "1234",
-    scope = "drive.file";
+    scope = "drive.file",
+    testToken = "token123";
+
+  const mockGetToken = jest.fn();
 
   const testGapi = {
     load: jest.fn((type, cb) => cb()),
     client: {
-      init: jest.fn(() => Promise.resolve()),
+      getToken: mockGetToken,
     },
   };
 
-  window.gapi = testGapi
+  const mockInitTokenClient = jest.fn(({ callback }) => ({
+    requestAccessToken: () => {
+      callback(testToken);
+    },
+  }));
 
-  beforeEach(() => {
-    clearJestMocks(
-      testGapi.load,
-      testGapi.client.init,
-    )
+  window.gapi = testGapi;
+
+  window.google = {
+    accounts: {
+      oauth2: {
+        initTokenClient: mockInitTokenClient,
+      },
+    },
+  };
+
+  beforeAll(() => {
+    loadScript.mockResolvedValue();
   });
 
-  it("should load gapi with script", async () => {
+  afterEach(() => {
+    clearJestMocks(
+      testGapi.load,
+      mockGetToken,
+      loadScript,
+    );
+  });
 
+  const asyncCheckToken = (requestToken, expected) => new Promise((resolve) => {
+    requestToken((token) => {
+      expect(token).toBe(expected);
+      resolve();
+    });
+  });
+
+  it("should load gapi with scripts", async () => {
     const p = loadGapi({ clientId, scope });
 
-    window[GLOBAL_LOAD_METHOD]();
+    const { requestToken } = await p;
 
-    const result = await p;
+    expect(mockInitTokenClient).toHaveBeenCalledWith({
+      client_id: clientId,
+      scope: scope,
+      callback: expect.any(Function),
+      error_callback: expect.any(Function),
+    });
 
-    expect(result).toBe(true);
-    expect(window[GLOBAL_LOAD_METHOD]).toBeUndefined();
-    expect(window.gapi.client.init).toHaveBeenCalledWith(expect.objectContaining({
-      clientId,
-      scope,
-    }));
+    await asyncCheckToken(requestToken, testToken);
+  });
+
+  it("should reuse token if already exists", async () => {
+    const p = loadGapi({ clientId, scope });
+
+    const { requestToken } = await p;
+
+    const token = {
+      expires_in: 123,
+      access_token: "aaa",
+    };
+
+    mockGetToken.mockReturnValueOnce(token);
+
+    await asyncCheckToken(requestToken, token);
+  });
+
+  it("should get new token if existing already expired", async () => {
+    const p = loadGapi({ clientId, scope });
+
+    const { requestToken } = await p;
+
+    mockGetToken.mockReturnValueOnce({
+      expires_in: 0,
+      access_token: "aaa",
+    });
+
+    await asyncCheckToken(requestToken, testToken);
   });
 
   it("should not load gapi if script already present", async () => {
-    const gApiScriptId = "gapi-script";
+    const getToken = (cb) => cb("1234");
 
-    const s = document.createElement("script");
-    s.id = gApiScriptId;
-    document.head.appendChild(s);
+    const p = loadGapi({ getToken });
 
-    const result = await loadGapi({ gApiScriptId, clientId, scope });
+    const { requestToken } = await p;
 
-    expect(document.getElementById(gApiScriptId).src).toBe("");
-    expect(window[GLOBAL_LOAD_METHOD]).toBeUndefined();
-    expect(result).toBe(true);
+    expect(loadScript).not.toHaveBeenCalled();
 
-    expect(window.gapi.client.init).toHaveBeenCalledWith(expect.objectContaining({
-      clientId,
-      scope,
-    }));
+    await asyncCheckToken(requestToken, "1234");
   });
 });
