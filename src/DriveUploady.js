@@ -5,7 +5,7 @@ import getDriveEnhancer from "./getDriveEnhancer";
 const DriveUploady = (props) => {
   const {
     enhancer: extEnhancer,
-    accessToken,
+    getToken,
     gApiScriptIdPrefix,
     clientId,
     scope,
@@ -15,11 +15,11 @@ const DriveUploady = (props) => {
 
   const enhancer = useMemo(() => {
     const driveEnhancer = getDriveEnhancer({
-      accessToken, gApiScriptIdPrefix, clientId, scope, queryParams,
+      getToken, gApiScriptIdPrefix, clientId, scope, queryParams,
     });
 
     return extEnhancer ? composeEnhancers(driveEnhancer, extEnhancer) : driveEnhancer;
-  }, [extEnhancer, accessToken, gApiScriptIdPrefix, clientId, scope, queryParams]);
+  }, [extEnhancer, getToken, gApiScriptIdPrefix, clientId, scope, queryParams]);
 
   return <Uploady {...uploadyProps} enhancer={enhancer}/>;
 };

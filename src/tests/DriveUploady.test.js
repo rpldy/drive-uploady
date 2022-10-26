@@ -6,7 +6,6 @@ jest.mock("@rpldy/uploady", () => "uploady");
 jest.mock("../getDriveEnhancer", () => jest.fn());
 
 describe("<DriveUploady> tests", () => {
-
   it("should render DriveUploady successfully", () => {
     const enhancer = "enhancer";
     getDriveEnhancer.mockReturnValueOnce(enhancer);

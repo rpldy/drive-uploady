@@ -11,6 +11,13 @@ const loadGapi = ({ gApiScriptIdPrefix = "uploady-drive-", apiUrl = GOOGLE_API, 
       callback: (response) => {
         responseCallbacks.forEach((cb) => cb(response));
       },
+      error_callback: (result) => {
+        //failed to authenticate/authorize
+        responseCallbacks.forEach((cb) => cb({
+          error: result.type,
+          error_description: result.message,
+        }));
+      }
     });
 
     const requestToken = (cb) => {
@@ -31,18 +38,6 @@ const loadGapi = ({ gApiScriptIdPrefix = "uploady-drive-", apiUrl = GOOGLE_API, 
         }
       }
     };
-
-    //TODO: SIGNOUT
-    // function handleSignoutClick() {
-    //   const token = gapi.client.getToken();
-    //   if (token !== null) {
-    //     google.accounts.oauth2.revoke(token.access_token);
-    //     gapi.client.setToken('');
-    //     document.getElementById('content').innerText = '';
-    //     document.getElementById('authorize_button').innerText = 'Authorize';
-    //     document.getElementById('signout_button').style.visibility = 'hidden';
-    //   }
-    // }
 
     return Promise.resolve({ requestToken });
   };

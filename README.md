@@ -162,3 +162,16 @@ export const App = () => {
 };
 ```
 
+## Revoke Token
+
+The library provides a utility function to revoke the token previously retrieved on the page:
+
+```javascript
+import { revokeToken } from "drive-uploady";
+
+const RevokeButton = () => {
+	return (
+    <button onClick={revokeToken}>Revoke Token</button>
+  );
+};
+```
