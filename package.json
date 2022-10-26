@@ -39,7 +39,7 @@
     "start": "yarn storybook"
   },
   "peerDependencies": {
-    "@rpldy/sender": ">=1.0.0",
+    "@rpldy/uploady": ">=1.0.0",
     "react": ">=16.8.x",
     "react-dom": ">=16.8.x"
   },

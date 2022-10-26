@@ -28,10 +28,10 @@ Uploads are sent to the multipart endpoint: [Google Drive docs](https://develope
 
 ```shell
 #Yarn:  
-   $ yarn add drive-uploady @rpldy/sender
+   $ yarn add drive-uploady @rpldy/uploady
 
 #NPM:
-   $ npm i drive-uploady @rpldy/sender
+   $ npm i drive-uploady @rpldy/uploady
 ``` 
 
 ## Props
