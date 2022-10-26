@@ -1,3 +1,4 @@
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "asyncCheckToken"] }] */
 import loadGapi from "../loadGapi";
 import loadScript from "../loadScript";
 
@@ -45,7 +46,14 @@ describe("loadGapi tests", () => {
     );
   });
 
-  it("should load gapi with scripts", async (done) => {
+  const asyncCheckToken = (requestToken, expected) => new Promise((resolve) => {
+    requestToken((token) => {
+      expect(token).toBe(expected);
+      resolve();
+    });
+  });
+
+  it("should load gapi with scripts", async () => {
     const p = loadGapi({ clientId, scope });
 
     const { requestToken } = await p;
@@ -55,31 +63,27 @@ describe("loadGapi tests", () => {
       scope: scope,
       callback: expect.any(Function),
       error_callback: expect.any(Function),
-    })
-
-    requestToken((token) => {
-      expect(token).toBe(testToken);
-      done();
     });
+
+    await asyncCheckToken(requestToken, testToken);
   });
 
-  it("should reuse token if already exists", async (done) => {
+  it("should reuse token if already exists", async () => {
     const p = loadGapi({ clientId, scope });
 
     const { requestToken } = await p;
 
-    mockGetToken.mockReturnValueOnce({
+    const token = {
       expires_in: 123,
       access_token: "aaa",
-    });
+    };
 
-    requestToken((token) => {
-      expect(token.access_token).toBe("aaa");
-      done();
-    });
+    mockGetToken.mockReturnValueOnce(token);
+
+    await asyncCheckToken(requestToken, token);
   });
 
-  it("should get new token if existing already expired", async (done) => {
+  it("should get new token if existing already expired", async () => {
     const p = loadGapi({ clientId, scope });
 
     const { requestToken } = await p;
@@ -89,13 +93,10 @@ describe("loadGapi tests", () => {
       access_token: "aaa",
     });
 
-    requestToken((token) => {
-      expect(token).toBe(testToken);
-      done();
-    });
+    await asyncCheckToken(requestToken, testToken);
   });
 
-  it("should not load gapi if script already present", async (done) => {
+  it("should not load gapi if script already present", async () => {
     const getToken = (cb) => cb("1234");
 
     const p = loadGapi({ getToken });
@@ -104,9 +105,6 @@ describe("loadGapi tests", () => {
 
     expect(loadScript).not.toHaveBeenCalled();
 
-    requestToken((token) => {
-      expect(token).toBe("1234");
-      done();
-    });
+    await asyncCheckToken(requestToken, "1234");
   });
 });

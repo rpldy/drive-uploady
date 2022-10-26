@@ -27,6 +27,7 @@ const getDriveSender = (authPromise, { queryParams }) => {
         if (response.access_token && response.expires_in) {
           resolve(response);
         } else {
+          // eslint-disable-next-line
           console.error("Encountered Auth Error ", {
             code: response.error,
             description: response.error_description,

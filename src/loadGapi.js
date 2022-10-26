@@ -5,7 +5,7 @@ const loadGapi = ({ gApiScriptIdPrefix = "uploady-drive-", apiUrl = GOOGLE_API, 
   const initAuth = () => {
     const responseCallbacks = [];
 
-    const tokenClient = getToken ? undefined : self.google.accounts.oauth2.initTokenClient({
+    const tokenClient = getToken ? undefined : window.google.accounts.oauth2.initTokenClient({
       client_id: clientId,
       scope,
       callback: (response) => {
@@ -26,7 +26,7 @@ const loadGapi = ({ gApiScriptIdPrefix = "uploady-drive-", apiUrl = GOOGLE_API, 
         getToken(cb);
       } else {
         //check if already has token
-        const existingToken = self.gapi.client.getToken();
+        const existingToken = window.gapi.client.getToken();
 
         if (existingToken?.expires_in) {
           //token not expired, we can re-use
@@ -43,7 +43,7 @@ const loadGapi = ({ gApiScriptIdPrefix = "uploady-drive-", apiUrl = GOOGLE_API, 
   };
 
   const loadAuth = () => new Promise((resolve) => {
-    self.gapi.load("client", resolve);
+    window.gapi.load("client", resolve);
   });
 
   const loadOwnGoogleApi = () => Promise.all([
